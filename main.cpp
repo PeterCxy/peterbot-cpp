@@ -10,11 +10,13 @@ int main() {
     client.get("https://www.google.com")
         ->send([](HttpClient *client) {
             printf("=== Google ===\n");
+            printf("%d\n", client->status());
             printf("%s\n", client->body());
         });
     client2.get("https://www.baidu.com")
         ->send([](HttpClient *client) {
             printf("=== Baidu ===\n");
+            printf("%d\n", client->status());
             printf("%s\n", client->body());
         });
     EvLoop::getDefault()->run();

@@ -14,6 +14,10 @@ class HttpClient {
         CURL *mCurlHandle;
         // Buffer for the body of a response
         std::vector<char> mBufferBody;
+        // Result code of the curl client
+        CURLcode mCurlCode;
+        // HTTP response code
+        long mStatus;
         HTTP_FINISH_CB mFinishCb;
         static int performOnce();
         // Callbacks used by EvLoop
@@ -21,7 +25,7 @@ class HttpClient {
             fd_set *exceptfds, int *max_fd);
         static void onLoop(fd_set *readfds, fd_set *writefds,
             fd_set *exceptfds);
-        void onFinish();
+        void onFinish(CURLcode curlCode);
     public:
         static void init();
         HttpClient();
@@ -29,6 +33,7 @@ class HttpClient {
         HttpClient *get(char *url);
         void send(HTTP_FINISH_CB cb);
         char *body();
+        long status();
 };
 
 size_t http_client_curl_write(char *ptr, size_t size, size_t nmemb, void *userdata);

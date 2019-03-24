@@ -42,7 +42,7 @@ void HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
             // Only DONE message is processed for now.
             size_t client_handle = (size_t) msg->easy_handle;
             if (HttpClient::sClients.find(client_handle) != HttpClient::sClients.end())
-                HttpClient::sClients[client_handle]->onFinish();
+                HttpClient::sClients[client_handle]->onFinish(msg->data.result);
         }
     } while (msg);
 }
@@ -66,6 +66,8 @@ HttpClient *HttpClient::get(char *url) {
 void HttpClient::send(HTTP_FINISH_CB cb) {
     // Make sure we clear all the buffered data here
     this->mBufferBody.clear();
+    this->mCurlCode = CURLE_OK;
+    this->mStatus = -1;
     // Set the callback
     this->mFinishCb = cb;
     // Make sure we capture all the data :)
@@ -77,7 +79,9 @@ void HttpClient::send(HTTP_FINISH_CB cb) {
     HttpClient::performOnce();
 }
 
-void HttpClient::onFinish() {
+void HttpClient::onFinish(CURLcode curlCode) {
+    this->mCurlCode = curlCode;
+    curl_easy_getinfo(this->mCurlHandle, CURLINFO_RESPONSE_CODE, &this->mStatus);
     this->mFinishCb(this);
     curl_multi_remove_handle(HttpClient::sCurlHandleM, this->mCurlHandle);
     // Reset every option so that this client can be re-used in the future
@@ -86,6 +90,10 @@ void HttpClient::onFinish() {
 
 char *HttpClient::body() {
     return this->mBufferBody.data();
+}
+
+long HttpClient::status() {
+    return this->mStatus;
 }
 
 size_t http_client_curl_write(char *ptr, size_t size, size_t nmemb, void *userdata) {
