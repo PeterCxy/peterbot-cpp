@@ -18,6 +18,7 @@ class HttpClient {
         CURLcode mCurlCode;
         // HTTP response code
         long mStatus;
+        // The callback yet to be called upon the request get finished
         HTTP_FINISH_CB mFinishCb;
         static int performOnce();
         // Callbacks used by EvLoop
