@@ -60,7 +60,8 @@ void EvLoop::run() {
         if (select_res >= 0) {
             // Let all the registered event listeners do their job
             for (auto& listener : this->mListeners) {
-                listener.on_loop(&readfds, &writefds, &exceptfds);
+                should_continue |=
+                    listener.on_loop(&readfds, &writefds, &exceptfds);
             }
         }
     }

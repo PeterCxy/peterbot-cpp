@@ -24,7 +24,7 @@ class HttpClient {
         // Callbacks used by EvLoop
         static bool buildFdset(fd_set *readfds, fd_set *writefds,
             fd_set *exceptfds, int *max_fd);
-        static void onLoop(fd_set *readfds, fd_set *writefds,
+        static bool onLoop(fd_set *readfds, fd_set *writefds,
             fd_set *exceptfds);
         void onFinish(CURLcode curlCode);
     public:

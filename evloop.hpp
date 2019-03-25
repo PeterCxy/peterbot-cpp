@@ -14,7 +14,7 @@ struct evloop_listener {
     // be monitored right now.
     bool (*build_fdset)(fd_set *readfds, fd_set *writefds,
         fd_set *exceptfds, int *max_fd);
-    void (*on_loop)(fd_set *readfds, fd_set *writefds,
+    bool (*on_loop)(fd_set *readfds, fd_set *writefds,
         fd_set *exceptfds);
 };
 

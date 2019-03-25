@@ -31,9 +31,8 @@ bool HttpClient::buildFdset(fd_set *readfds, fd_set *writefds,
     return still_running > 0;
 }
 
-void HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
+bool HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
         fd_set *exceptfds) {
-    HttpClient::performOnce();
     // Read all messages available from CURL
     struct CURLMsg *msg;
     int msgq;
@@ -46,6 +45,9 @@ void HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
                 HttpClient::sClients[client_handle]->onFinish(msg->data.result);
         }
     } while (msg);
+    // onFinish() could have triggered more events
+    // if so, we have to notify the event loop to continue.
+    return HttpClient::performOnce() > 0;
 }
 
 HttpClient::HttpClient() {
