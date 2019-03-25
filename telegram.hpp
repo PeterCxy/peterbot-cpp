@@ -25,7 +25,7 @@ class TelegramClient {
         // Note: the JSON result passed to the callback is
         // temporary; if you would use it after the callback
         // returns, make a copy of the values of your concern
-        void methodGet(char *method, TelegramOptions options,
+        void methodGet(const char *method, TelegramOptions options,
             TelegramCallback callback);
         // Some specialized methods
         void getMe(TelegramCallback callback);

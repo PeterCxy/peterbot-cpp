@@ -38,7 +38,7 @@ TelegramClient TelegramClient::clone() {
     return TelegramClient(this->mApiKey);
 }
 
-void TelegramClient::methodGet(char *method, TelegramOptions options,
+void TelegramClient::methodGet(const char *method, TelegramOptions options,
         TelegramCallback callback) {
     std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey,
         method, this->buildQueryString(options).data());
