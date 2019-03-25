@@ -84,8 +84,6 @@ void HttpClient::send(HTTP_FINISH_CB cb) {
     curl_easy_setopt(this->mCurlHandle, CURLOPT_WRITEDATA, &this->mBufferBody);
     // Begin polling on the client
     curl_multi_add_handle(HttpClient::sCurlHandleM, this->mCurlHandle);
-    // Perform anything we can do now.
-    HttpClient::performOnce();
 }
 
 void HttpClient::onFinish(CURLcode curlCode) {
