@@ -1,11 +1,11 @@
 CXX := g++
 XFLAGS := -Wall
 LIBRARIES := -lcurl
-INCLUDES := -I/usr/include/
+INCLUDES := -I/usr/include/ -Inlohmann_json/single_include/
 CXXFLAGS := $(XFLAGS) $(LIBRARIES) $(INCLUDES)
 
 OUTDIR := out
-SOURCES := $(shell find . -name '*.cpp')
+SOURCES := $(shell find . -maxdepth 1 -name '*.cpp')
 OBJS := $(SOURCES:%.cpp=$(OUTDIR)/%.o)
 TARGET := $(OUTDIR)/peterbot
 
@@ -20,6 +20,6 @@ $(TARGET): $(OBJS)
 
 all: $(TARGET)
 run: all
-	$(TARGET)
+	set -a && source ./config && $(TARGET)
 clean:
 	rm -rf $(OUTDIR)

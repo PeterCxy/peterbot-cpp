@@ -31,7 +31,8 @@ class HttpClient {
         static void init();
         HttpClient();
         ~HttpClient();
-        HttpClient *get(char *url);
+        std::string urlencode(const char* orig);
+        HttpClient *get(const char *url);
         void send(HTTP_FINISH_CB cb);
         char *body();
         long status();

@@ -59,7 +59,7 @@ HttpClient::~HttpClient() {
     HttpClient::sClients.erase((size_t) this->mCurlHandle);
 }
 
-HttpClient *HttpClient::get(char *url) {
+HttpClient *HttpClient::get(const char *url) {
     curl_easy_setopt(this->mCurlHandle, CURLOPT_URL, url);
     curl_easy_setopt(this->mCurlHandle, CURLOPT_HTTPGET, 1);
     return this;
@@ -96,6 +96,13 @@ char *HttpClient::body() {
 
 long HttpClient::status() {
     return this->mStatus;
+}
+
+std::string HttpClient::urlencode(const char* orig) {
+    char *encoded = curl_easy_escape(this->mCurlHandle, orig, 0);
+    std::string ret = std::string(encoded);
+    curl_free(encoded);
+    return ret;
 }
 
 size_t http_client_curl_write(char *ptr, size_t size, size_t nmemb, void *userdata) {
