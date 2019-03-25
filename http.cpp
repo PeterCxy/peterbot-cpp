@@ -33,6 +33,7 @@ bool HttpClient::buildFdset(fd_set *readfds, fd_set *writefds,
 
 void HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
         fd_set *exceptfds) {
+    HttpClient::performOnce();
     // Read all messages available from CURL
     struct CURLMsg *msg;
     int msgq;
