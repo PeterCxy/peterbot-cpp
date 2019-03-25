@@ -29,5 +29,7 @@ class TelegramClient {
             TelegramCallback callback);
         // Some specialized methods
         void getMe(TelegramCallback callback);
+        void getUpdates(unsigned long offset, unsigned int timeout,
+            TelegramCallback callback);
 };
 #endif

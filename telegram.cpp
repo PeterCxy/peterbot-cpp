@@ -60,3 +60,12 @@ void TelegramClient::methodGet(const char *method, TelegramOptions options,
 void TelegramClient::getMe(TelegramCallback callback) {
     this->methodGet("getMe", {}, callback);
 }
+
+void TelegramClient::getUpdates(unsigned long offset, unsigned int timeout,
+        TelegramCallback callback) {
+    this->mHttpClient.setTimeout(timeout);
+    this->methodGet("getUpdates", {
+        {"offset", std::to_string(offset)},
+        {"timeout", std::to_string(timeout)},
+    }, callback);
+}

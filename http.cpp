@@ -65,6 +65,11 @@ HttpClient *HttpClient::get(const char *url) {
     return this;
 }
 
+HttpClient *HttpClient::setTimeout(unsigned int sec) {
+    curl_easy_setopt(this->mCurlHandle, CURLOPT_TIMEOUT, sec);
+    return this;
+}
+
 void HttpClient::send(HTTP_FINISH_CB cb) {
     // Make sure we clear all the buffered data here
     this->mBufferBody.clear();
@@ -84,10 +89,12 @@ void HttpClient::send(HTTP_FINISH_CB cb) {
 void HttpClient::onFinish(CURLcode curlCode) {
     this->mCurlCode = curlCode;
     curl_easy_getinfo(this->mCurlHandle, CURLINFO_RESPONSE_CODE, &this->mStatus);
-    this->mFinishCb(this);
+    // Do clean-up before we call the callback, in case the callback
+    // might begin to re-use this HttpClient
     curl_multi_remove_handle(HttpClient::sCurlHandleM, this->mCurlHandle);
     // Reset every option so that this client can be re-used in the future
     curl_easy_reset(this->mCurlHandle);
+    this->mFinishCb(this);
 }
 
 char *HttpClient::body() {

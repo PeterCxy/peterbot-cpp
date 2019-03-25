@@ -1,6 +1,7 @@
 #include "evloop.hpp"
 #include "http.hpp"
 #include "telegram.hpp"
+#include "bot.hpp"
 #include <stdlib.h>
 #include <iostream>
 
@@ -20,7 +21,10 @@ int main() {
     client.getMe([](TelegramClient *client, json *res, int code) {
         if (code != 200)
             return;
-        std::cout << "I am @" << (*res)["username"].get<std::string>() << std::endl;
+        auto name = (*res)["username"].get<std::string>();
+        std::cout << "I am @" << name << std::endl;
+        PeterBot::init(name);
+        PeterBot::getInstance()->run();
     });
 
     EvLoop::getDefault()->run();

@@ -33,6 +33,7 @@ class HttpClient {
         ~HttpClient();
         std::string urlencode(const char* orig);
         HttpClient *get(const char *url);
+        HttpClient *setTimeout(unsigned int sec);
         void send(HTTP_FINISH_CB cb);
         char *body();
         long status();
