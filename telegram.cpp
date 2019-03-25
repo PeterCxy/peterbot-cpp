@@ -47,7 +47,7 @@ void TelegramClient::methodGet(const char *method, TelegramOptions options,
             if (client->status() != 200) {
                 callback(this, NULL, client->status());
             }
-            json res = json::parse(client->body());
+            json res = json::parse(client->bodyStr());
             if (!res["ok"]) {
                 // Telegram error
                 callback(this, &res, res["error_code"]);

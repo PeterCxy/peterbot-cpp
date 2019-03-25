@@ -35,7 +35,13 @@ class HttpClient {
         HttpClient *get(const char *url);
         HttpClient *setTimeout(unsigned int sec);
         void send(HTTP_FINISH_CB cb);
-        char *body();
+        // Note: this is NOT a zero-terminated C-style string
+        // you MUST use the length from `len`
+        // For a proper body-to-string conversion, see `bodyStr()`
+        char *body(size_t *len);
+        // Get the string version of the body, without ever
+        // worrying about zero-termination and length.
+        std::string bodyStr();
         long status();
 };
 

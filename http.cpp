@@ -99,8 +99,15 @@ void HttpClient::onFinish(CURLcode curlCode) {
     this->mFinishCb(this);
 }
 
-char *HttpClient::body() {
+char *HttpClient::body(size_t *len) {
+    *len = this->mBufferBody.size();
     return this->mBufferBody.data();
+}
+
+std::string HttpClient::bodyStr() {
+    size_t len = 0;
+    char *data = this->body(&len);
+    return std::string(data, len);
 }
 
 long HttpClient::status() {
