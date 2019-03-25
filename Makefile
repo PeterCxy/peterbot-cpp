@@ -1,7 +1,7 @@
 CXX := g++
 XFLAGS := -Wall
 LIBRARIES := -lcurl
-INCLUDES := -I/usr/include/ -Inlohmann_json/single_include/
+INCLUDES := -I/usr/include/ -I$(PWD)/nlohmann_json/single_include/
 CXXFLAGS := $(XFLAGS) $(LIBRARIES) $(INCLUDES)
 
 OUTDIR := out
