@@ -61,6 +61,7 @@ HttpClient::~HttpClient() {
 
 HttpClient *HttpClient::get(char *url) {
     curl_easy_setopt(this->mCurlHandle, CURLOPT_URL, url);
+    curl_easy_setopt(this->mCurlHandle, CURLOPT_HTTPGET, 1);
     return this;
 }
 
