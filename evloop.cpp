@@ -21,9 +21,6 @@ void EvLoop::registerListener(struct evloop_listener listener) {
 }
 
 void EvLoop::run() {
-    struct timeval timeout = {
-        .tv_sec = 1,
-    };
     fd_set readfds, writefds, exceptfds;
     bool should_continue = true;
     while (should_continue) {
@@ -54,7 +51,7 @@ void EvLoop::run() {
             FD_ZERO(&writefds);
             FD_ZERO(&exceptfds);
         } else {
-            select_res = select(max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
+            select_res = select(max_fd + 1, &readfds, &writefds, &exceptfds, NULL);
         }
 
         if (select_res >= 0) {
