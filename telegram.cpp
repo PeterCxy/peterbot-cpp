@@ -17,6 +17,7 @@ TelegramClient *TelegramClient::getDefault() {
 
 TelegramClient::TelegramClient(const char *apiKey) {
     this->mApiKey = apiKey;
+    this->mHttpClient.setTimeout(DEFAULT_TIMEOUT);
 }
 
 std::string TelegramClient::buildQueryString(TelegramOptions options) {
@@ -51,7 +52,6 @@ void TelegramClient::methodGet(const char *method, TelegramOptions options,
     std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey,
         method, this->buildQueryString(options).c_str());
     this->mHttpClient.get(url.c_str())
-        ->setTimeout(DEFAULT_TIMEOUT)
         ->send([this, callback](HttpClient *client) {
             this->onHttpResult(callback);
         });
@@ -66,7 +66,6 @@ void TelegramClient::methodPost(const char *method, TelegramOptions options,
     std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey, method, "");
     this->mHttpClient.post(url.c_str())
         ->formData(qstr.c_str(), qstr.size())
-        ->setTimeout(DEFAULT_TIMEOUT)
         ->send([this, callback](HttpClient *client) {
             this->onHttpResult(callback);
         });
@@ -86,6 +85,11 @@ void TelegramClient::onHttpResult(TelegramCallback callback) {
     // Suicide if this is a one-time 
     if (this->mOneTime)
         delete this;
+    // Reset the timeout to default
+    // since HttpClient should have already reset
+    // by the time this callback is called, this
+    // option will be preserved
+    this->mHttpClient.setTimeout(DEFAULT_TIMEOUT);
 }
 
 void TelegramClient::getMe(TelegramCallback callback) {
