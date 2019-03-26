@@ -12,6 +12,7 @@ class HttpClient {
         static CURLM *sCurlHandleM;
         static std::map<size_t, HttpClient*> sClients;
         CURL *mCurlHandle;
+        bool mIsPending = false; // True if request is ongoing
         // Buffer for the body of a response
         std::vector<char> mBufferBody;
         // Result code of the curl client
@@ -27,6 +28,7 @@ class HttpClient {
         static bool onLoop(fd_set *readfds, fd_set *writefds,
             fd_set *exceptfds);
         void onFinish(CURLcode curlCode);
+        void crashIfPending();
     public:
         static void init();
         HttpClient();

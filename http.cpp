@@ -1,7 +1,7 @@
 #include "http.hpp"
 #include "evloop.hpp"
 #include <cstring>
-#include <stdio.h>
+#include <iostream>
 
 CURLM *HttpClient::sCurlHandleM = NULL;
 std::map<size_t, HttpClient*> HttpClient::sClients;
@@ -62,12 +62,14 @@ HttpClient::~HttpClient() {
 }
 
 HttpClient *HttpClient::get(const char *url) {
+    this->crashIfPending();
     curl_easy_setopt(this->mCurlHandle, CURLOPT_URL, url);
     curl_easy_setopt(this->mCurlHandle, CURLOPT_HTTPGET, 1);
     return this;
 }
 
 HttpClient *HttpClient::post(const char *url) {
+    this->crashIfPending();
     curl_easy_setopt(this->mCurlHandle, CURLOPT_URL, url);
     curl_easy_setopt(this->mCurlHandle, CURLOPT_POST, 1);
     return this;
@@ -86,6 +88,7 @@ HttpClient *HttpClient::setTimeout(unsigned int sec) {
 }
 
 void HttpClient::send(HTTP_FINISH_CB cb) {
+    this->mIsPending = true;
     // Make sure we clear all the buffered data here
     this->mBufferBody.clear();
     this->mCurlCode = CURLE_OK;
@@ -100,6 +103,7 @@ void HttpClient::send(HTTP_FINISH_CB cb) {
 }
 
 void HttpClient::onFinish(CURLcode curlCode) {
+    this->mIsPending = false;
     this->mCurlCode = curlCode;
     curl_easy_getinfo(this->mCurlHandle, CURLINFO_RESPONSE_CODE, &this->mStatus);
     // Do clean-up before we call the callback, in case the callback
@@ -130,6 +134,13 @@ std::string HttpClient::urlencode(const char* orig) {
     std::string ret = std::string(encoded);
     curl_free(encoded);
     return ret;
+}
+
+void HttpClient::crashIfPending() {
+    if (this->mIsPending) {
+        std::cout << "An HttpClient cannot perform simultaneous requests" << std::endl;
+        exit(1);
+    }
 }
 
 size_t http_client_curl_write(char *ptr, size_t size, size_t nmemb, void *userdata) {
