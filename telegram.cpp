@@ -44,17 +44,35 @@ void TelegramClient::methodGet(const char *method, TelegramOptions options,
         method, this->buildQueryString(options).data());
     this->mHttpClient.get(url.data())
         ->send([this, callback](HttpClient *client) {
-            if (client->status() != 200) {
-                callback(this, NULL, client->status());
-            }
-            json res = json::parse(client->bodyStr());
-            if (!res["ok"]) {
-                // Telegram error
-                callback(this, &res, res["error_code"]);
-            }
-            json result_real = res["result"].get<json>();
-            callback(this, &result_real, 200);
+            this->onHttpResult(callback);
         });
+}
+
+void TelegramClient::methodPost(const char *method, TelegramOptions options,
+        TelegramCallback callback) {
+    // `x-www-form-urlencoded` is just query string without the ?
+    // added in the post body
+    std::string qstr = this->buildQueryString(options);
+    qstr = qstr.substr(1, qstr.size() - 1); // Remove the ? of the query string
+    std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey, method, "");
+    this->mHttpClient.post(url.c_str())
+        ->formData(qstr.c_str(), qstr.size())
+        ->send([this, callback](HttpClient *client) {
+            this->onHttpResult(callback);
+        });
+}
+
+void TelegramClient::onHttpResult(TelegramCallback callback) {
+    if (this->mHttpClient.status() != 200) {
+        callback(this, NULL, this->mHttpClient.status());
+    }
+    json res = json::parse(this->mHttpClient.bodyStr());
+    if (!res["ok"]) {
+        // Telegram error
+        callback(this, &res, res["error_code"]);
+    }
+    json result_real = res["result"].get<json>();
+    callback(this, &result_real, 200);
 }
 
 void TelegramClient::getMe(TelegramCallback callback) {
@@ -67,5 +85,13 @@ void TelegramClient::getUpdates(unsigned long offset, unsigned int timeout,
     this->methodGet("getUpdates", {
         {"offset", std::to_string(offset)},
         {"timeout", std::to_string(timeout)},
+    }, callback);
+}
+
+void TelegramClient::sendMessageText(long chatId, std::string message,
+        TelegramCallback callback) {
+    this->methodPost("sendMessage", {
+        {"chat_id", std::to_string(chatId)},
+        {"text", message},
     }, callback);
 }

@@ -67,6 +67,19 @@ HttpClient *HttpClient::get(const char *url) {
     return this;
 }
 
+HttpClient *HttpClient::post(const char *url) {
+    curl_easy_setopt(this->mCurlHandle, CURLOPT_URL, url);
+    curl_easy_setopt(this->mCurlHandle, CURLOPT_POST, 1);
+    return this;
+}
+
+HttpClient *HttpClient::formData(const char *data, size_t len) {
+    // Set size BEFORE the data!
+    curl_easy_setopt(this->mCurlHandle, CURLOPT_POSTFIELDSIZE, len);
+    curl_easy_setopt(this->mCurlHandle, CURLOPT_COPYPOSTFIELDS, data);
+    return this;
+}
+
 HttpClient *HttpClient::setTimeout(unsigned int sec) {
     curl_easy_setopt(this->mCurlHandle, CURLOPT_TIMEOUT, sec);
     return this;

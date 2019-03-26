@@ -45,8 +45,17 @@ void PeterBot::onUpdates(unsigned long offset, json *res, int code) {
         if (upd.contains("message")) {
             // This is a message
             json msg = upd["message"].get<json>();
-            if (msg.contains("text"))
-                std::cout << msg["text"].get<std::string>() << std::endl;
+            if (msg.contains("text")) {
+                long chat_id = msg["chat"]["id"].get<long>();
+                // TODO: don't use the same client here; implement a
+                // heap-allocated use-once TelegramClient (suicide on callback)
+                this->mClient.sendMessageText(chat_id, msg["text"].get<std::string>(),
+                    [this, new_offset](TelegramClient *client, json *res, int code) {
+                        this->loop(new_offset + 1);
+                    }
+                );
+                return;
+            }
         }
     }
 

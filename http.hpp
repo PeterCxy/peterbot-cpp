@@ -33,6 +33,8 @@ class HttpClient {
         ~HttpClient();
         std::string urlencode(const char* orig);
         HttpClient *get(const char *url);
+        HttpClient *post(const char *url);
+        HttpClient *formData(const char *data, size_t len);
         HttpClient *setTimeout(unsigned int sec);
         void send(HTTP_FINISH_CB cb);
         // Note: this is NOT a zero-terminated C-style string

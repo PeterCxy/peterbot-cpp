@@ -18,6 +18,7 @@ class TelegramClient {
         // Query string can be used both for GET
         // and for POST with www-form-urlencoded
         std::string buildQueryString(TelegramOptions options);
+        void onHttpResult(TelegramCallback callback);
     public:
         static void init(const char *mApiKey);
         static TelegramClient *getDefault();
@@ -27,9 +28,13 @@ class TelegramClient {
         // returns, make a copy of the values of your concern
         void methodGet(const char *method, TelegramOptions options,
             TelegramCallback callback);
+        void methodPost(const char *method, TelegramOptions options,
+            TelegramCallback callback);
         // Some specialized methods
         void getMe(TelegramCallback callback);
         void getUpdates(unsigned long offset, unsigned int timeout,
+            TelegramCallback callback);
+        void sendMessageText(long chatId, std::string message,
             TelegramCallback callback);
 };
 #endif
