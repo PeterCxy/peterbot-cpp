@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #define TELEGRAM_API_FORMAT "https://api.telegram.org/bot%s/%s%s"
+#define DEFAULT_TIMEOUT 60
 
 TelegramClient *TelegramClient::sDefaultInstance = NULL;
 
@@ -50,6 +51,7 @@ void TelegramClient::methodGet(const char *method, TelegramOptions options,
     std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey,
         method, this->buildQueryString(options).c_str());
     this->mHttpClient.get(url.c_str())
+        ->setTimeout(DEFAULT_TIMEOUT)
         ->send([this, callback](HttpClient *client) {
             this->onHttpResult(callback);
         });
@@ -64,6 +66,7 @@ void TelegramClient::methodPost(const char *method, TelegramOptions options,
     std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey, method, "");
     this->mHttpClient.post(url.c_str())
         ->formData(qstr.c_str(), qstr.size())
+        ->setTimeout(DEFAULT_TIMEOUT)
         ->send([this, callback](HttpClient *client) {
             this->onHttpResult(callback);
         });
@@ -80,6 +83,7 @@ void TelegramClient::onHttpResult(TelegramCallback callback) {
     }
     json result_real = res["result"].get<json>();
     callback(this, &result_real, 200);
+    // Suicide if this is a one-time 
     if (this->mOneTime)
         delete this;
 }
@@ -90,7 +94,8 @@ void TelegramClient::getMe(TelegramCallback callback) {
 
 void TelegramClient::getUpdates(unsigned long offset, unsigned int timeout,
         TelegramCallback callback) {
-    this->mHttpClient.setTimeout(timeout);
+    // Connection timeout should be longer than long-polling timeout
+    this->mHttpClient.setTimeout(timeout + 1);
     this->methodGet("getUpdates", {
         {"offset", std::to_string(offset)},
         {"timeout", std::to_string(timeout)},
