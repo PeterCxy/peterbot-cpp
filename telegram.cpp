@@ -38,6 +38,12 @@ TelegramClient TelegramClient::clone() {
     return TelegramClient(this->mApiKey);
 }
 
+TelegramClient *TelegramClient::cloneOneTime() {
+    TelegramClient *ret = new TelegramClient(this->mApiKey);
+    ret->mOneTime = true;
+    return ret;
+}
+
 void TelegramClient::methodGet(const char *method, TelegramOptions options,
         TelegramCallback callback) {
     std::string qstr = this->buildQueryString(options);
@@ -74,6 +80,8 @@ void TelegramClient::onHttpResult(TelegramCallback callback) {
     }
     json result_real = res["result"].get<json>();
     callback(this, &result_real, 200);
+    if (this->mOneTime)
+        delete this;
 }
 
 void TelegramClient::getMe(TelegramCallback callback) {

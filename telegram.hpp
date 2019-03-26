@@ -13,6 +13,7 @@ class TelegramClient {
     private:
         static TelegramClient *sDefaultInstance;
         const char *mApiKey;
+        bool mOneTime = false; // if true, suicide on finishing one request
         HttpClient mHttpClient;
         TelegramClient(const char *apiKey);
         // Query string can be used both for GET
@@ -23,6 +24,9 @@ class TelegramClient {
         static void init(const char *mApiKey);
         static TelegramClient *getDefault();
         TelegramClient clone();
+        // Produce a one-time heap-allocated client that commits suicide after
+        // a single request is made and concluded
+        TelegramClient *cloneOneTime();
         // Note: the JSON result passed to the callback is
         // temporary; if you would use it after the callback
         // returns, make a copy of the values of your concern
