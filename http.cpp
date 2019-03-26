@@ -138,7 +138,7 @@ std::string HttpClient::urlencode(const char* orig) {
 
 void HttpClient::crashIfPending() {
     if (this->mIsPending) {
-        std::cout << "An HttpClient cannot perform simultaneous requests" << std::endl;
+        std::cerr << "An HttpClient cannot perform simultaneous requests" << std::endl;
         exit(1);
     }
 }
