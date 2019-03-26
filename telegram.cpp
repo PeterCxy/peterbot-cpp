@@ -24,7 +24,7 @@ std::string TelegramClient::buildQueryString(TelegramOptions options) {
     for (auto& entry : options) {
         ret.append(entry.first);
         ret.push_back('=');
-        ret.append(this->mHttpClient.urlencode(entry.second.data()));
+        ret.append(this->mHttpClient.urlencode(entry.second.c_str()));
         ret.push_back('&');
     }
     // Remove the extra '&' at the end
@@ -40,9 +40,10 @@ TelegramClient TelegramClient::clone() {
 
 void TelegramClient::methodGet(const char *method, TelegramOptions options,
         TelegramCallback callback) {
+    std::string qstr = this->buildQueryString(options);
     std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey,
-        method, this->buildQueryString(options).data());
-    this->mHttpClient.get(url.data())
+        method, this->buildQueryString(options).c_str());
+    this->mHttpClient.get(url.c_str())
         ->send([this, callback](HttpClient *client) {
             this->onHttpResult(callback);
         });
