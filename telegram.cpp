@@ -50,7 +50,7 @@ void TelegramClient::methodGet(const char *method, TelegramOptions options,
         TelegramCallback callback) {
     std::string qstr = this->buildQueryString(options);
     std::string url = string_format(TELEGRAM_API_FORMAT, this->mApiKey,
-        method, this->buildQueryString(options).c_str());
+        method, qstr.c_str());
     this->mHttpClient.get(url.c_str())
         ->send([this, callback](HttpClient *client) {
             this->onHttpResult(callback);
