@@ -83,8 +83,10 @@ void TelegramClient::onHttpResult(TelegramCallback callback) {
     json result_real = res["result"].get<json>();
     callback(this, &result_real, 200);
     // Suicide if this is a one-time 
-    if (this->mOneTime)
+    if (this->mOneTime) {
         delete this;
+        return;
+    }
     // Reset the timeout to default
     // since HttpClient should have already reset
     // by the time this callback is called, this
