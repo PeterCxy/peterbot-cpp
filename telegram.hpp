@@ -25,6 +25,15 @@ class TelegramClient {
         // and for POST with www-form-urlencoded
         std::string buildQueryString(TelegramOptions options);
         void onHttpResult(TelegramCallback callback);
+        template<typename T>
+        void onTgResultT(TelegramCallbackT<T> callback, json *res, int code) {
+            if (res == NULL) {
+                callback(this, NULL, code);
+            } else {
+                T _res = T::from_json(res);
+                callback(this, &_res, code);
+            }
+        }
     public:
         static void init(const char *mApiKey);
         static TelegramClient *getDefault();
@@ -47,26 +56,16 @@ class TelegramClient {
         void methodGetT(const char *method, TelegramOptions options,
             TelegramCallbackT<T> callback) {
             this->methodGet(method, options,
-                [callback](TelegramClient *client, json *res, int code) {
-                    if (res == NULL) {
-                        callback(client, NULL, code);
-                    } else {
-                        T _res = T::from_json(res);
-                        callback(client, &_res, code);
-                    }
+                [this, callback](TelegramClient *client, json *res, int code) {
+                    this->onTgResultT(callback, res, code);
                 });
         }
         template<typename T>
         void methodPostT(const char *method, TelegramOptions options,
             TelegramCallbackT<T> callback) {
             this->methodPost(method, options,
-                [callback](TelegramClient *client, json *res, int code) {
-                    if (res == NULL) {
-                        callback(client, NULL, code);
-                    } else {
-                        T _res = T::from_json(res);
-                        callback(client, &_res, code);
-                    }
+                [this, callback](TelegramClient *client, json *res, int code) {
+                    this->onTgResultT(callback, res, code);
                 });
         }
         // Some specialized methods
