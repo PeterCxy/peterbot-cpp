@@ -1,5 +1,5 @@
 CXX := g++
-XFLAGS := -Wall
+XFLAGS := -Wall -std=c++17
 LIBRARIES := -lcurl
 INCLUDES := -I/usr/include/ -I$(PWD)/nlohmann_json/single_include/
 CXXFLAGS := $(XFLAGS) $(LIBRARIES) $(INCLUDES)

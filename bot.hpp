@@ -10,7 +10,7 @@ class PeterBot {
         PeterBot(std::string name);
         // Inner function actually performing run()
         void loop(unsigned long offset);
-        void onUpdates(unsigned long offset, json *res, int code);
+        void onUpdates(unsigned long offset, Telegram::Updates *res, int code);
     public:
         static void init(std::string name);
         static PeterBot *getInstance();

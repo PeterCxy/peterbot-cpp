@@ -92,23 +92,23 @@ void TelegramClient::onHttpResult(TelegramCallback callback) {
     this->mHttpClient.setTimeout(DEFAULT_TIMEOUT);
 }
 
-void TelegramClient::getMe(TelegramCallback callback) {
-    this->methodGet("getMe", {}, callback);
+void TelegramClient::getMe(TelegramCallbackT<Telegram::User> callback) {
+    this->methodGetT("getMe", {}, callback);
 }
 
 void TelegramClient::getUpdates(unsigned long offset, unsigned int timeout,
-        TelegramCallback callback) {
+        TelegramCallbackT<Telegram::Updates> callback) {
     // Connection timeout should be longer than long-polling timeout
     this->mHttpClient.setTimeout(timeout + 1);
-    this->methodGet("getUpdates", {
+    this->methodGetT("getUpdates", {
         {"offset", std::to_string(offset)},
         {"timeout", std::to_string(timeout)},
     }, callback);
 }
 
 void TelegramClient::sendMessageText(long chatId, std::string message,
-        TelegramCallback callback) {
-    this->methodPost("sendMessage", {
+        TelegramCallbackT<Telegram::Message> callback) {
+    this->methodPostT("sendMessage", {
         {"chat_id", std::to_string(chatId)},
         {"text", message},
     }, callback);

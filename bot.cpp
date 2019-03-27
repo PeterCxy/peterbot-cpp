@@ -23,12 +23,12 @@ void PeterBot::run() {
 
 void PeterBot::loop(unsigned long offset) {
     this->mClient.getUpdates(offset, 60 * 5,
-        [this, offset](TelegramClient *client, json *res, int code) {
+        [this, offset](TelegramClient *client, Telegram::Updates *res, int code) {
             this->onUpdates(offset, res, code);
         });
 }
 
-void PeterBot::onUpdates(unsigned long offset, json *res, int code) {
+void PeterBot::onUpdates(unsigned long offset, Telegram::Updates *res, int code) {
     if (code != 200) {
         std::cerr << "Something happened during long-polling: " << code << std::endl;
         std::cerr << "Continuing anyway..." << std::endl;
@@ -38,20 +38,20 @@ void PeterBot::onUpdates(unsigned long offset, json *res, int code) {
             
     unsigned long new_offset = offset;
     for (auto& upd : *res) {
-        if (upd["update_id"].get<unsigned long>() > new_offset) {
-            new_offset = upd["update_id"];
+        if (upd.update_id > new_offset) {
+            new_offset = upd.update_id;
         }
 
-        if (upd.contains("message")) {
+        if (upd.message.has_value()) {
             // This is a message
-            json msg = upd["message"].get<json>();
-            if (msg.contains("text")) {
-                long chat_id = msg["chat"]["id"].get<long>();
+            Telegram::Message msg = upd.message.value();
+            if (msg.text.has_value()) {
                 this->mClient.cloneOneTime() // Use a one-time client for this
-                    ->sendMessageText(chat_id, msg["text"].get<std::string>(),
-                        [this, new_offset](TelegramClient *client, json *res, int code) {
+                    ->sendMessageText(msg.chat.id, msg.text.value(),
+                        [this, new_offset](TelegramClient *client, Telegram::Message *res, int code) {
                             // Do nothing, this is an independent branch
                             // from the main event loop
+                            std::cout << res->text.value() << std::endl;
                         }
                     );
             }

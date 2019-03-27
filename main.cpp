@@ -18,12 +18,11 @@ int main() {
     TelegramClient::init(apiKey);
 
     TelegramClient client = TelegramClient::getDefault()->clone();
-    client.getMe([](TelegramClient *client, json *res, int code) {
+    client.getMe([](TelegramClient *client, Telegram::User *res, int code) {
         if (code != 200)
             return;
-        auto name = (*res)["username"].get<std::string>();
-        std::cout << "I am @" << name << std::endl;
-        PeterBot::init(name);
+        std::cout << "I am @" << res->username << std::endl;
+        PeterBot::init(res->username);
         PeterBot::getInstance()->run();
     });
 
