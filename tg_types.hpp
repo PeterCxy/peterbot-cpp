@@ -8,6 +8,7 @@
 namespace Telegram {
     using namespace nlohmann;
 
+    // Source: <https://gist.github.com/fenbf/d2cd670704b82e2ce7fd>
     template<typename T>
     class Deserializable {
         private:
