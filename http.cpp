@@ -15,24 +15,11 @@ void HttpClient::init() {
     });
 }
 
-int HttpClient::performOnce() {
+bool HttpClient::performOnce() {
     int still_running = 0;
     curl_multi_perform(HttpClient::sCurlHandleM, &still_running);
-    return still_running;
-}
-
-bool HttpClient::buildFdset(fd_set *readfds, fd_set *writefds,
-        fd_set *exceptfds, int *max_fd) {
-    // As how libcurl behaves, we have to continue performing the request
-    // as long as still_running is not 0, even if the last curl_multi_fdset
-    // returned -1 for the max_fd.
-    int still_running = HttpClient::performOnce();
-    curl_multi_fdset(HttpClient::sCurlHandleM, readfds, writefds, exceptfds, max_fd);
-    return still_running > 0;
-}
-
-bool HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
-        fd_set *exceptfds) {
+    // Any time a curl_multi_perform gets called, we should always
+    // check if there is new available messages for delivery
     // Read all messages available from CURL
     struct CURLMsg *msg;
     int msgq;
@@ -45,9 +32,24 @@ bool HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
                 HttpClient::sClients[client_handle]->onFinish(msg->data.result);
         }
     } while (msg);
-    // onFinish() could have triggered more events
-    // if so, we have to notify the event loop to continue.
-    return HttpClient::performOnce() > 0;
+    return still_running > 0;
+}
+
+bool HttpClient::buildFdset(fd_set *readfds, fd_set *writefds,
+        fd_set *exceptfds, int *max_fd) {
+    // As how libcurl behaves, we have to continue performing the request
+    // as long as still_running is not 0, even if the last curl_multi_fdset
+    // returned -1 for the max_fd.
+    bool ret = HttpClient::performOnce();
+    curl_multi_fdset(HttpClient::sCurlHandleM, readfds, writefds, exceptfds, max_fd);
+    return ret;
+}
+
+bool HttpClient::onLoop(fd_set *readfds, fd_set *writefds,
+        fd_set *exceptfds) {
+    // Delegate everything to performOnce() because that's the only thing
+    // we need to do now. It will notify us whether we need to continue or not.
+    return HttpClient::performOnce();
 }
 
 HttpClient::HttpClient() {

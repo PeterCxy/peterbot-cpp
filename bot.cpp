@@ -46,12 +46,13 @@ void PeterBot::onUpdates(unsigned long offset, Telegram::Updates *res, int code)
             // This is a message
             Telegram::Message msg = upd.message.value();
             if (msg.text.has_value()) {
+                std::cout << "sending: " << msg.text.value() << std::endl;
                 this->mClient.cloneOneTime() // Use a one-time client for this
                     ->sendMessageText(msg.chat.id, msg.text.value(),
                         [this, new_offset](TelegramClient *client, Telegram::Message *res, int code) {
                             // Do nothing, this is an independent branch
                             // from the main event loop
-                            std::cout << res->text.value() << std::endl;
+                            std::cout << "sent: " << res->text.value() << std::endl;
                         }
                     );
             }

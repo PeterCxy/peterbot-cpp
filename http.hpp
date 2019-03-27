@@ -21,7 +21,8 @@ class HttpClient {
         long mStatus;
         // The callback yet to be called upon the request get finished
         HTTP_FINISH_CB mFinishCb;
-        static int performOnce();
+        // Return whether there is still something pending
+        static bool performOnce();
         // Callbacks used by EvLoop
         static bool buildFdset(fd_set *readfds, fd_set *writefds,
             fd_set *exceptfds, int *max_fd);
